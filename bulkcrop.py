@@ -42,7 +42,7 @@ def run_argparse() -> argparse.ArgumentParser.parse_args:
         '-b', '--cropbox', type=int,
         nargs=4, metavar=("LEFT", "UPPER", "RIGHT", "LOWER"),
         required=True,
-        help='coordinates for the cropbox as a list of integers (e.g., --box 5 5 5 5)'
+        help='coordinates for the cropbox as a list of integers (e.g., --cropbox 5 5 5 5)'
     )
 
     parser.add_argument(
@@ -106,9 +106,12 @@ def bulk_crop_img(
             try:
                 with Image.open(img_path) as img:
                     if shave:
-                        crop_box = shave_img(img, crop_box)
+                        new_crop_box = shave_img(img, crop_box)
+                    else:
+                        new_crop_box = crop_box
+
                     # crop & save img
-                    cropped_img = img.crop(crop_box)
+                    cropped_img = img.crop(new_crop_box)
                     # save with the same extension
                     cropped_img.save(os.path.join(
                         output_dir,
