@@ -1,10 +1,32 @@
-from PIL import Image
 import os
+from typing import Tuple
 
-with Image.open("test.jpeg") as img:
+from PIL import Image
+
+def main():
+    with Image.open("test.jpeg") as img:
+        crop_img(img, (50, 50, 50, 800), shave=True)
+
+def shave_img(img: Image.Image, crop_dimensions: Tuple[int, int, int, int]) -> Tuple[int, int, int, int]:
     width, height = img.size
-    (left, upper, right, lower) = (50, 50, (width - 50), (height - 500))
+    left, top, right, bottom = crop_dimensions
+    return left, top, width - right, height - bottom
 
-    # here the image "img" is cropped and assigned to new variable img_crop
-    img_crop = img.crop((left, upper, right, lower))
+def crop_img(img: Image.Image, crop_dimensions: Tuple[int, int, int, int], shave: bool) -> None:
+    """
+    Crops and saves an image.
+
+    Args:
+    img (Image object): the image to crop
+    crop_dimensions (Tuple): the coordinates to crop (left, upper, right, lower)
+
+    Returns:
+    None
+    """
+    if shave:
+        crop_dimensions = shave_img(img, crop_dimensions)
+    img_crop = img.crop(crop_dimensions)
     img_crop.save('test2.png', 'PNG')
+
+if __name__ == "__main__":
+    main()
