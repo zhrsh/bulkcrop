@@ -42,7 +42,7 @@ def run_argparse() -> argparse.ArgumentParser.parse_args:
         '-b', '--cropbox', type=int,
         nargs=4, metavar=("LEFT", "UPPER", "RIGHT", "LOWER"),
         required=True,
-        help='coordinates for the cropbox as a list of integers (e.g., --cropbox 5 5 5 5)'
+        help='coordinates for the cropbox as a list of integers (e.g., --cropbox 5 5 10 10)'
     )
 
     parser.add_argument(
