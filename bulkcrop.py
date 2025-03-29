@@ -1,7 +1,9 @@
 import os
+import argparse
 from typing import Tuple, List
-
 from PIL import Image
+
+NAME = "bulkcrop"
 
 def main() -> None:
     """
@@ -13,9 +15,44 @@ def main() -> None:
     Returns:
     None.
     """
-    with Image.open("test.jpeg") as img:
-        crop_box = shave_img(img, (50, 50, 50, 50))
-        bulk_crop_img(crop_box)
+    args = run_argparse()
+    bulk_crop_img(args.cropbox, args.files, shave=args.shave)
+
+def run_argparse() -> argparse.ArgumentParser.parse_args:
+    """
+    Parse the user's command line arguments. Runs at the beginning of the program.
+
+    Args: none
+    Returns: parser.parse_args() (parsed arguments. an argparse obj)
+    """
+
+    parser = argparse.ArgumentParser(
+        description='A simple script to bulk crop images. This script is under the MIT License. Copyright (c) 2025 Zahra A. S.',
+        epilog='For more information, see documentation at github.com/zhrsh/bulkcrop',
+        prog=NAME
+    )
+
+    parser.add_argument(
+        '-f', '--files', type=str,
+        nargs='+', required=True,
+        help='list of image files to crop (e.g., use "*.png" for all png images in cwd)'
+    )
+
+    parser.add_argument(
+        '-b', '--cropbox', type=int,
+        nargs=4, metavar=("LEFT", "UPPER", "RIGHT", "LOWER"),
+        required=True,
+        help='coordinates for the cropbox as a list of integers (e.g., --box 5 5 5 5)'
+    )
+
+    parser.add_argument(
+        '-s', '--shave',
+        action='store_true',
+        help='use the cropbox as lengths to "shave" each side of the image instead. use only for images of the same size.'
+    )
+
+    # return parsed args
+    return parser.parse_args()
 
 def shave_img(
     img: Image.Image, crop_box: Tuple[int, int, int, int]
@@ -42,14 +79,18 @@ def shave_img(
     return left, top, width - right, height - bottom
 
 def bulk_crop_img(
-    # input_dir and output_dir are the cwd (".") by default
-    crop_box: Tuple[int, int, int, int], input_dir: str=".", output_dir: str=".", shave: bool=False
+    crop_box: Tuple[int, int, int, int],
+    file_list: List[str],
+    input_dir: str=".",
+    output_dir: str=".",
+    shave: bool=False
 ) -> None:
     """
-    Crops images in the input directory and saves them to the output directory.
+    Crops specified images and saves them to the output directory.
 
     Args:
     crop_box: a tuple of (left, upper, right, lower) coordinates for cropping.
+    file_list: list of image file names to be processed.
     input_dir: directory containing input images (default is cwd).
     output_dir: directory where cropped images will be saved (default is cwd).
     """
@@ -57,8 +98,8 @@ def bulk_crop_img(
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # loop through all files in the input directory
-    for filename in os.listdir(input_dir):
+    # loop through the provided list of file names
+    for filename in file_list:
         # check for image file types
         if filename.endswith(('.png', '.jpg', '.jpeg')):
             img_path = os.path.join(input_dir, filename)
@@ -71,7 +112,7 @@ def bulk_crop_img(
                     # save with the same extension
                     cropped_img.save(os.path.join(
                         output_dir,
-                        f"{os.path.splitext(filename)[0]}_cropped{os.path.splitext(filename)[1]}"
+                        f"{os.path.splitext(filename)[0]}_crop{os.path.splitext(filename)[1]}"
                     ))
             except Exception as e:
                 print(f"error: unable to process {filename}:\n{e}")
