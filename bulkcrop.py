@@ -1,5 +1,5 @@
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 from PIL import Image
 
@@ -8,16 +8,17 @@ def main() -> None:
     Main function.
 
     Args:
-    None
+    None.
 
     Returns:
     None.
     """
     with Image.open("test.jpeg") as img:
-        crop_img(img, (50, 50, 50, 800), shave=True)
+        crop_box = shave_img(img, (50, 50, 50, 50))
+        bulk_crop_img(crop_box)
 
 def shave_img(
-    img: Image.Image, crop_dimensions: Tuple[int, int, int, int]
+    img: Image.Image, crop_box: Tuple[int, int, int, int]
 ) -> Tuple[int, int, int, int]:
     """
     Calculate the new dimensions for cropping an image based on specified crop dimensions.
@@ -27,7 +28,7 @@ def shave_img(
 
     Args:
     img (Image object): the image from which dimensions will be calculated.
-    crop_dimensions (Tuple): a tuple containing four integers (left, upper, right, lower)
+    crop_box (Tuple): a tuple of (left, upper, right, lower) coordinates for cropping.
 
     Returns:
     Tuple: A tuple containing the new crop dimensions:
@@ -37,26 +38,38 @@ def shave_img(
         - bottom: The height of the image minus the input bottom.
     """
     width, height = img.size
-    left, top, right, bottom = crop_dimensions
+    left, top, right, bottom = crop_box
     return left, top, width - right, height - bottom
 
-def crop_img(
-    img: Image.Image, crop_dimensions: Tuple[int, int, int, int], shave: bool=False
+def bulk_crop_img(
+    # input_dir and output_dir are the cwd (".") by default
+    crop_box: Tuple[int, int, int, int], input_dir: str=".", output_dir: str="." 
 ) -> None:
     """
-    Crops and saves an image.
+    Crops images in the input directory and saves them to the output directory.
 
     Args:
-    img (Image object): the image to crop
-    crop_dimensions (Tuple): the coordinates to crop (left, upper, right, lower)
-
-    Returns:
-    None
+    crop_box: a tuple of (left, upper, right, lower) coordinates for cropping.
+    input_dir: directory containing input images (default is cwd).
+    output_dir: directory where cropped images will be saved (default is cwd).
     """
-    if shave:
-        crop_dimensions = shave_img(img, crop_dimensions)
-    img_crop = img.crop(crop_dimensions)
-    img_crop.save('test2.png', 'PNG')
+    # create output directory if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # loop through all files in the input directory
+    for filename in os.listdir(input_dir):
+        # check for image file types
+        if filename.endswith(('.png', '.jpg', '.jpeg')):
+            img_path = os.path.join(input_dir, filename)
+            try:
+                with Image.open(img_path) as img:
+                    # crop & save img
+                    cropped_img = img.crop(crop_box)
+                    # save with the same extension
+                    cropped_img.save(os.path.join(output_dir, f"{os.path.splitext(filename)[0]}_cropped{os.path.splitext(filename)[1]}"))
+            except Exception as e:
+                print(f"error processing {filename}:\n{e}")
 
 if __name__ == "__main__":
     main()
