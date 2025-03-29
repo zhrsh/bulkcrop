@@ -43,7 +43,7 @@ def shave_img(
 
 def bulk_crop_img(
     # input_dir and output_dir are the cwd (".") by default
-    crop_box: Tuple[int, int, int, int], input_dir: str=".", output_dir: str="." 
+    crop_box: Tuple[int, int, int, int], input_dir: str=".", output_dir: str=".", shave: bool=False
 ) -> None:
     """
     Crops images in the input directory and saves them to the output directory.
@@ -64,6 +64,8 @@ def bulk_crop_img(
             img_path = os.path.join(input_dir, filename)
             try:
                 with Image.open(img_path) as img:
+                    if shave:
+                        crop_box = shave_img(img, crop_box)
                     # crop & save img
                     cropped_img = img.crop(crop_box)
                     # save with the same extension
