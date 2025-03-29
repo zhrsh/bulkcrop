@@ -67,9 +67,14 @@ def bulk_crop_img(
                     # crop & save img
                     cropped_img = img.crop(crop_box)
                     # save with the same extension
-                    cropped_img.save(os.path.join(output_dir, f"{os.path.splitext(filename)[0]}_cropped{os.path.splitext(filename)[1]}"))
+                    cropped_img.save(os.path.join(
+                        output_dir,
+                        f"{os.path.splitext(filename)[0]}_cropped{os.path.splitext(filename)[1]}"
+                    ))
             except Exception as e:
-                print(f"error processing {filename}:\n{e}")
+                print(f"error: unable to process {filename}:\n{e}")
+        else:
+            print(f"error: {filename} is not an image.")
 
 if __name__ == "__main__":
     main()
