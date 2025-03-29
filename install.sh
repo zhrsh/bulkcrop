@@ -1,12 +1,14 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 DIR_USR="$HOME/bin/"
+NAME="bulkcrop"
+EXTENSION=".py"
 
-cp bulkcrop.py bulkcrop
-chmod +x bulkcrop
+cp "$NAME$EXTENSION" "$NAME"
+chmod +x "$NAME"
 
 if [ -d "$DIR_USR" ]; then
-    mv bulkcrop "$DIR_USR"
+    mv "$NAME" "$DIR_USR"
 fi
 
 # alternative installation paths to be added later
