@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+
+"""
+bulkcrop.py
+A simple script to bulk crop images. 
+
+This script is under the MIT License. Copyright (c) 2025 Zahra A. S.
+"""
+
 import os
 import argparse
 from typing import Tuple, List
